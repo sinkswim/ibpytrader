@@ -3,6 +3,7 @@ import time
 from wrapper import IBWrapper
 from client import IBClient
 from contract import stock, future, option
+from order import limit, BUY
 
 class IBApp(IBWrapper, IBClient):
     def __init__(self, ip, port, client_id):
@@ -12,10 +13,22 @@ class IBApp(IBWrapper, IBClient):
         thread = threading.Thread(target=self.run,daemon=True)
         thread.start()
         time.sleep(2)
+        
 if __name__ == "__main__":
     app = IBApp("127.0.0.1", 7497, client_id=10)
     aapl = stock("AAPL", "SMART", "USD")
+    data = app.get_market_data(
+        request_id=99,
+        contract=aapl
+    )
     gbl = future("GBL", "EUREX", "202403")
     pltr = option("PLTR", "BOX", "20240315", 20, "C")
+    data = app.get_historical_data(
+        request_id=99,
+        contract=aapl,
+        duration='2 D',
+        bar_size='30 secs'
+    )
+    limit_order = limit(BUY, 100, 190.00)
     time.sleep(30)
     app.disconnect()
